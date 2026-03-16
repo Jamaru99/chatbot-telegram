@@ -43,12 +43,10 @@ Após importar, você deve configurar as credenciais no N8N para que os nós fun
 * Insira o seu `TELEGRAM_BOT_TOKEN`.
 
 ### 2. OpenWeather (Variável de Ambiente)
-O nó de requisição HTTP está configurado para ler a chave de API. Certifique-se de preencher o parâmetro `appid` com sua chave real:
-
-| Variável | Descrição |
-| :--- | :--- |
-| `TELEGRAM_BOT_TOKEN` | Token secreto do seu bot no Telegram. |
-| `OPENWEATHER_API_KEY` | Chave de acesso (APPID) da API OpenWeather. |
+* No menu lateral, vá em **Credentials** > **Add Credential**.
+* Procure por **OpenWeatherMap API**.
+* Insira a sua `OPENWEATHER_API_KEY`.
+  O nó de http já está configurado com a autenticação pela credencial da OpenWeatherMap.
 
 ---
 
@@ -58,7 +56,7 @@ O fluxo segue os requisitos técnicos obrigatórios:
 
 1. **Telegram Trigger:** Detecta novas mensagens de texto.
 2. **Set Node (`queue`):** Captura e limpa o texto enviado pelo usuário.
-3. **HTTP Request:** Consulta o endpoint oficial da OpenWeather com os parâmetros `units=metric` e `lang=pt_br`.
+3. **HTTP Request:** Consulta o endpoint oficial da OpenWeather com os parâmetros `units=metric` (graus celsius) e `lang=pt_br`.
 4. **IF Node:** Verifica se a cidade foi encontrada (Status 200).
 5. **Telegram Send Message:** * **Sucesso:** Retorna a temperatura formatada (ex: `25°C`).
     * **Erro:** Retorna uma mensagem de orientação caso a cidade seja inválida.
