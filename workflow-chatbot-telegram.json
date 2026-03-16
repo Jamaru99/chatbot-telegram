@@ -1,0 +1,334 @@
+{
+  "name": "Weather Brazil",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -256,
+        32
+      ],
+      "id": "c7a7c0fb-ac89-4a33-ac20-fad45977b842",
+      "name": "Telegram Trigger",
+      "webhookId": "815f5451-8e61-46f7-920b-423f5d3f68ce",
+      "executeOnce": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "FpfqNKIAXGHoQQma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=🌤️ A temperatura em {{ $('Request Geocoding').item.json.name }} é de {{ $json.main.temp.toString().replace('.', ',') }} °C",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        -176
+      ],
+      "id": "3019e98f-09b5-47f7-9e2c-eac6c9cd0c87",
+      "name": "Send a text message",
+      "webhookId": "bbf27fd3-ddbc-44d0-98c5-e2d7fcd72ecb",
+      "credentials": {
+        "telegramApi": {
+          "id": "FpfqNKIAXGHoQQma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"queue\": \"{{ $json.message.text.split(',').slice(0, 2).map(item => item.trim()).join(',') + ',BR' }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        32
+      ],
+      "id": "a9c1aeda-8959-4141-96a3-309523dd4a78",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openWeatherMapApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "units",
+              "value": "metric"
+            },
+            {
+              "name": "lang",
+              "value": "pt_br"
+            },
+            {
+              "name": "lat",
+              "value": "={{ $json.lat }}"
+            },
+            {
+              "name": "lon",
+              "value": "={{ $json.lon }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        624,
+        -48
+      ],
+      "id": "cdb5988b-2752-4ee8-8d4c-4222ef9d9da2",
+      "name": "Request Weather",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "SP4YoNowk4M2InCq",
+          "name": "OpenWeatherMap account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/geo/1.0/direct",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openWeatherMapApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.queue }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        32
+      ],
+      "id": "e4780d04-0b74-45ff-a47a-31bd45bc3ba3",
+      "name": "Request Geocoding",
+      "alwaysOutputData": true,
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "SP4YoNowk4M2InCq",
+          "name": "OpenWeatherMap account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6a8bbe1d-e7fb-4564-b71f-eedf0ad371e1",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        16
+      ],
+      "id": "3753dfe6-c126-4686-a37e-bbc7153b3f96",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Erro inesperado",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        208
+      ],
+      "id": "4f96a83a-ef18-41e2-9839-d9857bd2f462",
+      "name": "Send an error message1",
+      "webhookId": "bbf27fd3-ddbc-44d0-98c5-e2d7fcd72ecb",
+      "credentials": {
+        "telegramApi": {
+          "id": "FpfqNKIAXGHoQQma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Cidade brasileira não encontrada. Use o formato Cidade, Estado (ex.: São Paulo, SP).",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        128
+      ],
+      "id": "e72a0826-f737-49b3-9a2d-342f415e9baa",
+      "name": "Send city not found message",
+      "webhookId": "bbf27fd3-ddbc-44d0-98c5-e2d7fcd72ecb",
+      "credentials": {
+        "telegramApi": {
+          "id": "FpfqNKIAXGHoQQma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ Erro inesperado",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "ee17b5ba-c4cd-426a-be31-7cf60a1a1c66",
+      "name": "Send an error message",
+      "webhookId": "bbf27fd3-ddbc-44d0-98c5-e2d7fcd72ecb",
+      "credentials": {
+        "telegramApi": {
+          "id": "FpfqNKIAXGHoQQma",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Request Geocoding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Weather": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an error message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Geocoding": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an error message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Request Weather",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send city not found message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9a7782b3-5483-46a8-adab-8f6426204843",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f0aaf404309fb9fffce0a3a9d783d5aa17e4a26ef216634bf6e825bfaf551c73"
+  },
+  "id": "SMuqIPqUFhjrqtQl",
+  "tags": []
+}
