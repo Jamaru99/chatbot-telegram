@@ -76,6 +76,3 @@ O fluxo segue os requisitos técnicos obrigatórios:
 ## ⚠️ Segurança
 
 > **Importante:** O arquivo `workflow-chatbot-telegram.json` exportado não contém tokens reais. Nunca suba suas chaves privadas para repositórios públicos.
-
----
-*Desenvolvido para fins de desafio técnico em automação.*
